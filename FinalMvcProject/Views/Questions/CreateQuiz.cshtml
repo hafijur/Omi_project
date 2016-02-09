@@ -1,0 +1,280 @@
+﻿@model List<FinalMvcProject.Models.Course>
+<br /><br />
+
+@{
+    if (ViewBag.number != null)
+    {
+        <h1>Make Quiz</h1>
+<div class="container">
+
+    <div class="col-md-4">
+        @Html.Label("Department")
+        @Html.DropDownList("Department", " Select Department")
+
+    </div>
+
+    <div class="col-md-4">
+        @Html.Label("Course")
+        <select id="course_dropdown" class="form-control"></select>
+    </div>
+
+    <div class="col-md-4">
+        @Html.Label("Quiz")
+        <input id="q" type="text" placeholder="Enter Quiz Name" class="form-control" />
+        <span id="s" style="color: red"></span>
+    </div>
+</div>
+
+<br /><br />
+<div id="questionsdiv">
+
+    @for (int i = 0; i < ViewBag.number; i++)
+    {
+        var first = "same" + i;
+        var second = "same" + i;
+        var third = "same" + i;
+        var forth = "same" + i;
+
+        var number = i + 1;
+
+        var firstr = "firstr" + i;
+        var secondr = "secondr" + i;
+        var thirdr = "thirdr" + i;
+        var forthr = "forthr" + i;
+
+        var firstq = "firstq" + i;
+        var secondq = "secondq" + i;
+        var thirdq = "thirdq" + i;
+        var forthq = "forthq" + i;
+        var question = "question" + i;
+        <div id="question_form" class="container">
+            <div class="col-lg-12">
+                <br />
+                @Html.Label(@i+". Enter Question")
+                <input id="@question" class="form-control" /><br />
+            </div>
+
+
+            <div class="col-md-3 form-inline">
+                <input class="form-control" id="@firstr" name="@first" type="radio" />
+                <input class="form-control" type="text" id="@firstq" />
+            </div>
+
+            <div class="col-md-3 form-inline">
+                <input class="form-control" id="@secondr" name="@second" type="radio" />
+                <input class="form-control" type="text" id="@secondq" />
+            </div>
+
+            <div class="col-md-3 form-inline">
+                <input class="form-control" id="@thirdr" name="@third" type="radio" />
+                <input class="form-control" type="text" id="@thirdq" />
+            </div>
+
+            <div class="col-md-3 form-inline">
+                <input class="form-control" id="@forthr" name="@forth" type="radio" />
+                <input class="form-control" type="text" id="@forthq" />
+            </div>
+        </div>
+    }
+</div>
+<br /><br />
+<input id="submit" type="button" class="btn btn-success btn-lg col-lg-offset-3" value="submit" />
+}
+else
+{
+    <h1 style="color:red;">Please set a number that how many question you want to do </h1>
+}
+}
+
+
+@section scripts
+{
+    <script>
+
+
+        var question_arr = [];
+        var quiz_id;
+        var crs;
+        var qz;
+
+        function myFunction(question, first, second, third, forth, answer, quizId) {
+            this.Questionfor = question;
+            this.First = first;
+            this.Second = second;
+            this.Third = third;
+            this.Forth = forth;
+            this.Answer = answer;
+            this.QuizId = quizId;
+            //this.CourseId = courseid;
+        }
+
+        $(function () {
+                     
+            var h;
+
+//..........Starting of quiz name key up method...............................
+            $("#q").keyup(function() {
+                 h = $("#q").val();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("CheckDuplicate")',
+                    contentType: "application/json; charset=utf-8",
+                    datatype: "json",
+                    data: JSON.stringify({ name:h }),
+                    success: function(data) {
+                        if (data==true) {
+                            $("#s").html("Already have a quiz with this name");
+                        } else {
+                            $("#s").empty();
+                        }
+                    }
+                });
+
+            });
+
+//........................end of quiz name key up method..........................................
+
+                $("#Department").addClass("form-control");
+
+                $("#questionsdiv").click(function() {
+                    for (var i = 0; i < 3; i++) {
+                        $("#firstr" + i).val($("#firstq" + i).val());
+                        $("#secondr" + i).val($("#secondq" + i).val());
+                        $("#thirdr" + i).val($("#thirdq" + i).val());
+                        $("#forthr" + i).val($("#forthq" + i).val());
+                    }
+                });
+                @*.............................End of Div Click..............................*@
+
+
+
+                $("#submit").click(function() {
+                    if ($("#q").val() == "") {
+                        $("#s").html("please Enter quiz name");
+                        $("html, body").animate({ scrollTop: 0 }, "first");
+                    }
+                    else if (h==true) {
+                        $("#s").html("Already exist this name plz choose another");
+                        $("html, body").animate({ scrollTop: 0 }, "first");
+                    } else {
+                        for (var i = 0; i < 3; i++) {
+
+                            var ques = $("#question" + i).val();
+                            var f = $("#firstq" + i).val();
+                            var s = $("#secondq" + i).val();
+                            var t = $("#thirdq" + i).val();
+                            var fr = $("#forthq" + i).val();
+                            var ans = $('input[name=same' + i + ']:checked').val();
+                            crs = $("#course_dropdown").val();
+                            qz = $("#q").val();
+
+
+                            question_arr[i] = new myFunction(ques, f, s, t, fr, ans, quiz_id);
+                        }
+
+
+                        @* .........................Insert Quiz................................... *@
+
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("InsertQuiz")',
+                            contentType: "application/json; charset=utf-8",
+                            datatype: "json",
+                            data: JSON.stringify({ Name: qz, CourseId: crs }),
+                            success: function(data) {
+                                quiz_id = data;
+                                //for (var j = 0; j < 3; j++) {
+                                //var loop = question_arr[j];
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("Test")',
+                                    contentType: "application/json; charset=utf-8",
+                                    datatype: "json",
+                                    data: JSON.stringify({ ob: question_arr, id: quiz_id }),
+                                    success: function() {
+                                        alert("Successfully Added");
+                                    }
+
+
+                                });
+
+                                //}
+                            },
+                            error: function() {
+
+                            }
+                        });
+
+                    } // End of else
+
+                }); //end of mousedown
+
+
+
+
+
+
+
+
+                @* .........................End of Insert Quiz................................... *@
+
+
+
+                @*$("#submit").mouseup(function () {
+
+                for (var j = 0; j < 3; j++) {
+                    var loop = question_arr[j];
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("Test")',
+                        contentType: "application/json; charset=utf-8",
+                        datatype: "json",
+                        data: JSON.stringify({ ob: loop, id: quiz_id }),
+                        success: function () {
+
+                        },
+                        error: function () {
+
+                        }
+
+                    });
+
+                }
+            });*@
+
+
+                @*...........................End of inset Question..........................*@
+
+                $("#Department").change(function() {
+                    var dept = $("#Department").val();
+
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GetCourses")',
+                        contentType: "application/json; charset=utf-8",
+                        datatype: "json",
+                        data: JSON.stringify({ id: dept }),
+                        success: function(data) {
+                            $("#course_dropdown").empty();
+                            $.each(data, function(key, value) {
+
+                                $("#course_dropdown").append('<option value=' + value.CourseId + '>' + value.Name + '<option>');
+
+
+                            });
+
+
+                        }
+
+
+                    });
+                });
+                @*...........................End of Department Dropdown Select..........................*@
+
+
+
+
+            });
+            </script>
+    }

@@ -1,0 +1,12 @@
+﻿@model IEnumerable<FinalMvcProject.Models.Course>
+      
+@if (Model != null)
+{
+   
+      
+        foreach (var item in Model)
+        {
+            <option value="@item.CourseId">@item.Name</option>
+        }
+    
+}

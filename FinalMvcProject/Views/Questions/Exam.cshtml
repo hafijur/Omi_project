@@ -1,0 +1,129 @@
+﻿
+
+
+<br /><br />
+<div id="br"> <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></div>
+
+
+<div><input class="btn btn-success btn-group-lg" id="quiz" type="button" value="Start Quiz" /></div>
+
+<div id="q"></div>
+<button style="height: 50px;width: 100px;" id="next" class="btn btn-warning">Next</button>
+
+@*<h1><button id="getall">Get All Name</button></h1>
+    <h2>Get Msg Data</h2>*@
+@section scripts
+{
+
+    <script>
+        var msg;
+        var count = 0;
+        var c = 0;
+        var score = 0;
+        var inputvalue;
+        var number = 1;
+        $(function () {
+            $("#next").hide();
+            $("#quiz").click(function () {
+                $("#br").hide();
+                $("#next").show();
+                $("#quiz").hide();
+                
+                $.ajax({
+                    type: "POST",
+                    url: "GetData",
+                    contentType: "application/json; charset=utf-8",
+                    //data: car,
+                    datatype: "json",
+                    success: function (data) {
+                        alert("succeed");
+                        msg = data;
+                        //$.each(data, function(key, value) {
+                        //    //$("#getall").append(value.QuestionFor + "<br>");
+                        //});
+
+
+                        $("#q").empty();
+                        $("#q").addClass("jumbotron");
+                        //$("#q").append('<h1>' + msg[0].QuestionFor + '</h1><br><br><h2> <input type="radio" name="same" value="' + msg[0].First + '"/>' + msg[0].First + '</h2><br><h2><input type="radio" name="same" value="' + msg[0].Second + '"/>' + msg[0].Second + '</h2><br><h2><input type="radio" name="same" value="' + msg[0].Third + '"/>' + msg[0].Third + '</h2><br><h2> <input type="radio" name="same" value="' + msg[0].Forth + '"/>' + msg[0].Forth + '</h2><br>');
+                        $("#q").append('<h1>'+number+'. '+msg[0].QuestionFor + '</h1><br><br> <input type="radio" name="same" value="' + msg[0].First + '"/>' + msg[0].First + '<br><input type="radio" name="same" value="' + msg[0].Second + '"/>' + msg[0].Second + '<br><input type="radio" name="same" value="' + msg[0].Third + '"/>' + msg[0].Third + '<br> <input type="radio" name="same" value="' + msg[0].Forth + '"/>'+msg[0].Forth+'<br>');
+                        c++;
+                        number++;
+                        $("#start").hide();
+                    },
+                    error: function() {
+                        alert("error");
+                    }
+                });
+            });
+
+            $("input[type='radio']").css({"height":"30px","width":"30px"});
+
+            $("h2").click(function() {
+                //$.each(msg, function(key, value) {
+
+                $("h2").append(msg[count].QuestionFor + "<br>");
+                count++;
+                //});
+            });
+
+            $("#start").click(function() {
+                $("#q").empty();
+                $("#q").append('<h1>'+number+'. '+msg[0].QuestionFor + '</h1><br><br>' + msg[0].First + ':<input type="radio" name="same" value="' + msg[0].First + '"/><br>' + msg[0].Second + ':<input type="radio" name="same" value="' + msg[0].Second + '"/><br>' + msg[0].Third + ':<input type="radio" name="same" value="' + msg[0].Third + '"/><br>' + msg[0].Forth + ':<input type="radio" name="same" value="' + msg[0].Forth + '"/><br>');
+                c++;
+                number++;
+            });
+            //$("#quiz").click(function() {
+            //$("table").empty();
+            //});
+
+            $("#txt").keyup(function() {
+                if ($("#txt").val() != "") {
+                    inputvalue = $("#txt").val();
+                }
+
+            });
+            $("#see").click(function() {
+                alert(inputvalue);
+            });
+
+            $("#next").click(function() {
+                var o = $("input[name='same']:checked").val();
+                if (msg[c - 1].Answer == o) {
+                    //alert("Your ans is right");
+                    score++;
+                    if (msg[c] != null) {
+                        $("#q").empty();
+                        $("#q").addClass("jumbotron");
+                        $("#q").append('<h1>'+number+'. '+msg[c].QuestionFor + '</h1><br><br> <input type="radio" name="same" value="' + msg[c].First + '"/>' + msg[c].First + ' <br><input type="radio" name="same" value="' + msg[c].Second + '"/>' + msg[c].Second + ' <br><input type="radio" name="same" value="' + msg[c].Third + '"/>' + msg[c].Third + ' <br> <input type="radio" name="same" value="' + msg[c].Forth + '"/>' + msg[c].Forth + '<br>');
+                        c++;
+                        number++;
+
+                    } else {
+                        $("#next").hide();
+                        $("#q").empty();
+                        $("#q").append('<h1 class="alert alert-info">Your Score is : ' + score + '</h1>');
+                    }
+                } else {
+                    //alert("Your ans is wrong");
+                    if (msg[c] != null) {
+                        $("#q").empty();
+                        $("#q").addClass("jumbotron");
+                        $("#q").append('<h1>'+number+'. '+msg[c].QuestionFor + '</h1><br><br> <input type="radio" name="same" value="' + msg[c].First + '"/>' + msg[c].First + ' <br><input type="radio" name="same" value="' + msg[c].Second + '"/>' + msg[c].Second + ' <br><input type="radio" name="same" value="' + msg[c].Third + '"/>' + msg[c].Third + ' <br> <input type="radio" name="same" value="' + msg[c].Forth + '"/>' + msg[c].Forth + '<br>');
+                        c++;
+                        number++;
+
+                    } else {
+                        $("#q").empty();
+                        $("#q").addClass("jumbotron");
+                        $("#next").hide();
+                        $("#q").append('<h1 class="alert alert-info">Your Score is : '+score+'</h1>');
+                    }
+                }
+            });
+
+        });
+
+    </script>
+
+}
